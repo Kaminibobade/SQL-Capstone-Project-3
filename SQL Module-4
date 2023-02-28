@@ -1,0 +1,226 @@
+
+* Below is a simple dataset of a few countries, which contains data such as area, population, GDP, etc.
+The below data will be used to explain concepts in this module such as subqueries.
+
+Worked on two different datasets for Same project-
+
+Dataset-1: 'World'
+
+Field Name - 
+
+Country, Continent, Area, Population, GDP, Capital
+
+* It has been one year since the covid pandemic started globally. But it has only been 3 months since the vaccinations started.
+We have the data for vaccinations by countries till 10th March 2021. As we are in the second wave in most of the countries,
+the speed of vaccination is very important. Use your SQL skills to analyse the data where are countries standing in terms of vaccination as of 10th march
+
+Dataset: Vaccinations
+Dataset-2: 'Vaccinations'
+
+Field Name - 
+Country, iso_code, date, Continent, total_vaccination, 
+daily_vaccination, total_vaccinations _per_hundred, people_vaccinated_per_hundred, daily_vaccination_per_million 
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+Select * from imdb_movies
+
+Q1-Segment the movies based on the below criteria using CASE WHEN
+Revenue greater than or equal to 300 million: Blockbuster
+Revenue between 200 and 299.99 million: Superhit
+Revenue between 100 and 199.99 million: Hit
+Else: Normal
+
+How many movies are ‘Superhit’ in the year 2014?
+
+Select count(*) as Superhit_Movies
+From (Select ID, Title, Year, 
+        CASE
+        WHEN Revenue_millions >= 300 THEN 'Blockbuster'
+        WHEN Revenue_millions between 200 AND 299.99 THEN 'Superhit'
+        WHEN Revenue_millions between 100 AND 199.99 THEN 'Hit'
+        Else 'Normal'
+        END as Progress
+        From imdb_movies) as b 
+ Where Year = '2014' AND Progress = 'Superhit';
+
+---Another Way---
+SELECT result,
+       Count(title) AS number_of_movies
+FROM   (SELECT title,
+               genre,
+               revenue_millions,
+               year,
+               CASE
+                 WHEN revenue_millions >= 300 THEN 'Blockbuster'
+                 WHEN revenue_millions BETWEEN 200 AND 299.99 THEN 'Super Hit'
+                 WHEN revenue_millions BETWEEN 100 AND 199.99 THEN 'Hit'
+                 ELSE 'Normal'
+               END AS result
+        FROM   imdb_movies) A
+WHERE  year = 2014
+GROUP  BY result 
+===================================================================================================================================
+Q2-What is the total revenue of the Blockbuster movies in the year 2015?
+
+SELECT result,
+       Sum(revenue_millions) AS tot_revenue
+FROM   (SELECT title,
+               genre,
+               revenue_millions,
+               year,
+               CASE
+                 WHEN revenue_millions >= 300 THEN 'Blockbuster'
+                 WHEN revenue_millions BETWEEN 200 AND 299.99 THEN 'Super Hit'
+                 WHEN revenue_millions BETWEEN 100 AND 199.99 THEN 'Hit'
+                 ELSE 'Normal'
+               END AS result
+        FROM   imdb_movies) A
+WHERE  year = 2015
+GROUP  BY result 
+
+---Another Way---
+
+Select sum(IF(Revenue_millions >= 300, Revenue_millions,0))
+From imdb_movies
+Where Year = '2015'
+=======================================================================================================================================
+Q3-How many movies are a ‘Must Watch’ in the entire dataset?
+Rating greater than or equal to 8: ‘Must Watch’
+Rating between 6 and 7.9: ‘Can Watch’
+Rating below 6: ‘Avoid’
+
+Select count(*) as Must_watch_Movies
+From (Select ID, Title, Year, 
+        CASE
+        WHEN Rating >= 8 THEN 'Must Watch'
+        WHEN Rating between 6 AND 7.9 THEN 'Can Watch'
+        WHEN Rating < 6 THEN 'Avoid'
+        END as Status
+        From imdb_movies) as b 
+ Where Status = 'Must Watch'
+===================================================================================================================================
+Q4-Compute total revenue by year and genre for all the movies with ratings less than 7.
+What is the total revenue of movies with ratings less than 7 in the year 2016 for ‘Drama’?
+
+Select sum(IF(Rating < 7, Revenue_millions,0)) as total_revenue
+From imdb_movies
+Where Year = '2016' AND genre= 'Drama';
+
+---Another Way---
+
+SELECT year,
+       genre,
+       SUM(IF(rating < 7, revenue_millions, 0))
+FROM   imdb_movies
+WHERE  year = 2016
+       AND genre = 'Drama'
+GROUP  BY year,
+          genre
+===================================================================================================================================
+Q5-What is the revenue contribution of ‘The Avengers’ in the genre ‘Action’ in the year 2012?
+in percentage
+
+Select Title, revenue_millions * 100 /(Select sum(revenue_millions)
+                                                      From imdb_movies
+                                                      Where genre= 'Action' AND Year= '2012') as percentage
+from imdb_movies
+where Title= 'The Avengers' 
+===================================================================================================================================
+Q6-What is the revenue contribution of the genre ‘Comedy’ of total revenue in the year 2016? (Answer it without % sign)
+
+Select genre, sum(revenue_millions) * 100 /(Select sum(revenue_millions)
+                                                      From imdb_movies
+                                                      Where Year= '2016') as percentage
+from imdb_movies
+Where genre = 'Comedy' AND Year='2016'
+GROUP by genre
+===================================================================================================================================
+Q7-Which genre has the highest revenue collection for the last 3 years? Enter its revenue.
+
+Select max(total_revenue)
+from (Select genre, sum(revenue_millions) as total_revenue
+        from imdb_movies
+        Where Year IN ('2014', '2015', '2016')
+        GROUP by genre) as d 
+===================================================================================================================================
+Q8-Find out the the director who has highest average rating of his/her movies. Enter the rating
+
+Select director, max(average_rating) as rating_avg
+From (Select director, avg(rating) as average_rating
+      from imdb_movies
+      GROUP by director) as b 
+GROUP by director
+Order by rating_avg DESC;
+===================================================================================================================================
+Q9-How many movies have revenue greater than highest movie revenue of the ‘Adventure’ genre?
+ 
+ Select count(Title)
+ From imdb_movies
+ where Revenue_millions > (select max(Revenue_millions) 
+                             from imdb_movies
+                              where genre= 'Adventure'); 
+ ===================================================================================================================================
+Q10-How many movies have ratings greater than highest movie rating of the year 2015?
+
+Select count(Title)
+ From imdb_movies
+ where Rating > (select max(Rating) 
+                             from imdb_movies
+                              where Year= '2015'); 
+
+===================================================================================================================================
+
+Q11-What is the minimum revenue corresponding to a movie such that its rating is higher than 
+    highest movie rating of the year 2015 and its revenue is greater than highest movie revenue of the ‘Comedy’ genre?
+    
+
+Select min(Revenue_millions)
+from imdb_movies
+where Rating > (select max(Rating) from imdb_movies
+                 where Year= '2015')
+  AND Revenue_millions > (Select max(Revenue_millions)
+                             from imdb_movies
+                            where genre = 'Adventure' and Year= '2015');
+  
+===================================================================================================================================  
+Q12-How many movies contribute more than 10% of revenue to the total revenue of all movies in a year?
+
+Select count(*)
+From (Select t2.Year, Revenue_millions * 100 / Total as Perc_tot_revenue
+      from imdb_movies as t1 
+      INNER JOIN (Select Year, sum(Revenue_millions) as Total 
+                  from imdb_movies
+                   Group by Year) as t2
+ON t1.Year= t2.Year) as t3
+Where Perc_tot_revenue > '10';
+===================================================================================================================================
+Q13-How many movies contribute more than 5% of revenue to the total revenue of all movies in their respective genre?
+
+Select count(*)
+From (Select t2.genre, Revenue_millions * 100 / Total as Perc_tot_revenue
+      from imdb_movies as t1 
+      INNER JOIN (Select genre, sum(Revenue_millions) as Total 
+                  from imdb_movies
+                   Group by genre) as t2
+ON t1.genre= t2.genre) as t3
+Where Perc_tot_revenue > '5';
+===================================================================================================================================
+----END-----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
