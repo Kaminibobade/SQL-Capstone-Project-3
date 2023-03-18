@@ -1,27 +1,4 @@
 
-* Below is a simple dataset of a few countries, which contains data such as area, population, GDP, etc.
-The below data will be used to explain concepts in this module such as subqueries.
-
-Worked on two different datasets for Same project-
-
-Dataset-1: 'World'
-
-Field Name - 
-
-Country, Continent, Area, Population, GDP, Capital
-
-* It has been one year since the covid pandemic started globally. But it has only been 3 months since the vaccinations started.
-We have the data for vaccinations by countries till 10th March 2021. As we are in the second wave in most of the countries,
-the speed of vaccination is very important. Use your SQL skills to analyse the data where are countries standing in terms of vaccination as of 10th march
-
-Dataset: Vaccinations
-Dataset-2: 'Vaccinations'
-
-Field Name - 
-Country, iso_code, date, Continent, total_vaccination, 
-daily_vaccination, total_vaccinations _per_hundred, people_vaccinated_per_hundred, daily_vaccination_per_million 
-
---------------------------------------------------------------------------------------------------------------------------------------------------
 Select * from imdb_movies
 
 Q1-Segment the movies based on the below criteria using CASE WHEN
